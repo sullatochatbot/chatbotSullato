@@ -17,19 +17,25 @@ def webhook():
         return "Token inválido", 403
 
     if request.method == "POST":
-        data = request.get_json()
-        print("Mensagem recebida:", json.dumps(data, indent=2))
+        try:
+            data = request.get_json()
+            print("Mensagem recebida:", json.dumps(data, indent=2))
 
-        # Verifica se há uma mensagem de texto
-        if data.get("entry"):
-            for entry in data["entry"]:
-                if entry.get("changes"):
-                    for change in entry["changes"]:
-                        value = change.get("value")
-                        messages = value.get("messages")
-                        if messages:
-                            for message in messages:
-                                sender_id = message["from"]
-                                text = message["text"]["body"]
-                                print(f"Mensagem de {sender_id}: {text}")
-        return "Evento recebido", 200
+            if data.get("entry"):
+                for entry in data["entry"]:
+                    if entry.get("changes"):
+                        for change in entry["changes"]:
+                            value = change.get("value")
+                            messages = value.get("messages")
+                            if messages:
+                                for message in messages:
+                                    sender_id = message["from"]
+                                    text = message["text"]["body"]
+                                    print(f"Mensagem de {sender_id}: {text}")
+            return "Evento recebido", 200
+        except Exception as e:
+            print("Erro ao processar POST:", str(e))
+            return "Erro interno", 500
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
